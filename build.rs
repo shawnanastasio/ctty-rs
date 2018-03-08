@@ -1,3 +1,4 @@
+#[cfg(any(target_os = "freebsd", target_os = "macos"))]
 extern crate cc;
 
 fn main() {
