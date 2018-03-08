@@ -1,3 +1,14 @@
+//! ctty-rs is a cross-platform crate for determining a processes' controlling TTY (ctty).
+//! Support is currently available for Linux, macOS, and FreeBSD.
+//!
+//! In many cases, it may be useful to know which TTY a process belongs to
+//! (for example, when storing session data), but there is no standardized way to 
+//! do this across operating systems. One way is to use ttyname on stdin, stout, or stderr's
+//! file descriptors, but this doesn't work in cases where they are redirected at the shell level.
+//!
+//! ctty-rs provides a simple way to obtain a processes' controlling TTY even when
+//! stdin, stdout, and stderr with a platform-agnostic interface.
+
 #[cfg(target_os = "linux")]
 mod linux {
     use std::error::Error;
@@ -10,7 +21,7 @@ mod linux {
     extern crate nix;
     use self::nix::sys::stat::stat;
 
-    // Returns the dev_t corresponding to the current process's controlling tty
+    /// Returns the dev_t corresponding to the current process's controlling tty
     pub fn get_ctty_dev() -> Result<u64, Box<Error>> {
         // /proc/self/stat contains the ctty's device id in field 7
         // Open it and read its contents to a string
@@ -41,7 +52,7 @@ mod linux {
         Ok(dev_int as u64)
     }
 
-    // Returns a full path to a tty or pseudo tty that corresponds with the given dev_t
+    /// Returns a full path to a tty or pseudo tty that corresponds with the given dev_t
     pub fn get_path_for_dev(dev: u64) -> Result<String, Box<Error>> {
         // Check all devices in /dev/pts/* and /dev/tty* for a match 
         let patterns = ["/dev/pts/*", "/dev/tty"];
@@ -76,8 +87,8 @@ mod linux {
 #[cfg(target_os = "linux")]
 pub use linux::*;
 
-/// For FreeBSD and macOS, it's probably not worth it to recreate the kinfo_proc struct
-/// in Rust and use FFI bindings to call sysctl, so I'm instead using a small C wrapper.
+// For FreeBSD and macOS, it's probably not worth it to recreate the kinfo_proc struct
+// in Rust and use FFI bindings to call sysctl, so I'm instead using a small C wrapper.
 #[cfg(any(target_os = "freebsd", target_os = "macos"))]
 mod bsd {
     use std::error::Error;
@@ -95,6 +106,7 @@ mod bsd {
     }
     
 
+    /// Returns the dev_t corresponding to the current process's controlling tty
     pub fn get_ctty_dev() -> Result<u64, Box<Error>> {
         let res = unsafe { _get_ctty_dev() };
         if res == 0 {
@@ -103,6 +115,7 @@ mod bsd {
         Ok(res)
     }
 
+    /// Returns a full path to a tty or pseudo tty that corresponds with the given dev_t
     pub fn get_path_for_dev(dev: u64) -> Result<String, Box<Error>> {
         let mut buf: Vec<u8> = Vec::with_capacity(255);
         unsafe {
