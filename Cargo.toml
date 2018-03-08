@@ -1,0 +1,16 @@
+[package]
+name = "ctty-rs"
+version = "0.1.0"
+authors = ["Shawn Anastasio <shawnanastasio@yahoo.com>"]
+build = "build.rs"
+
+[target.'cfg(target_os = "linux")'.dependencies]
+glob = "0.2.11"
+nix = "0.10.0"
+
+[target.'cfg(any(target_os = "freebsd", target_os = "macos"))'.build-dependencies]
+cc = "1.0"
+
+[target.'cfg(any(target_os = "freebsd", target_os = "macos"))'.dependencies]
+libc = "0.2.39"
+
