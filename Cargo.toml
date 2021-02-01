@@ -1,8 +1,11 @@
 [package]
-name = "ctty-rs"
+name = "ctty"
 version = "0.1.0"
 authors = ["Shawn Anastasio <shawnanastasio@yahoo.com>"]
 build = "build.rs"
+license = "MIT"
+description = "Cross-platform crate for determining a process' controlling tty (ctty)"
+repository = "https://github.com/shawnanastasio/ctty-rs"
 
 [dependencies]
 thiserror = "1.0"
